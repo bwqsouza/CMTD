@@ -1,17 +1,26 @@
-version: '2'
 services:
   php:
-    image: yiisoftware/yii2-php:7.4-apache
+    build: .
     volumes:
-      - ~/.composer-docker/cache:/root/.composer/cache:delegated
       - ./:/app:delegated
     ports:
       - '8000:80'
-  
+    env_file:
+      - .env
+    environment:
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+    depends_on:
+      - mongo
+
   mongo:
-    image: mongo
-    container_name: mongo
+    image: mongo:4.4
+    container_name: mongo_db
     volumes:
+      - mongo_data:/data/db
       - ./backup:/backup
     ports:
       - '27017:27017'
+
+volumes:
+  mongo_data:

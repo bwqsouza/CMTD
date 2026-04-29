@@ -1,0 +1,9 @@
+vendor/
+runtime/
+web/assets/
+backup/
+.git/
+.env
+*.zip
+Vagrantfile
+vagrant/

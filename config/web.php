@@ -53,13 +53,31 @@ $config = [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning'],
                 ],
+                [
+                    'class'      => 'yii\log\FileTarget',
+                    'levels'     => ['info', 'warning', 'error'],
+                    'categories' => ['import'],
+                    'logFile'    => '@runtime/logs/import.log',
+                    'maxFileSize' => 10240,
+                    'maxLogFiles' => 5,
+                    'logVars'    => [],
+                ],
+                [
+                    'class'      => 'yii\log\FileTarget',
+                    'levels'     => ['info', 'warning', 'error'],
+                    'categories' => ['predict'],
+                    'logFile'    => '@runtime/logs/predict.log',
+                    'maxFileSize' => 10240,
+                    'maxLogFiles' => 5,
+                    'logVars'    => [],
+                ],
             ],
         ],
         
         'mongodb' => [
             'class' => '\yii\mongodb\Connection',
-             'dsn' => 'mongodb://localhost:27017/',
-             'defaultDatabaseName' => 'stock'
+            'dsn' => 'mongodb://' . (getenv('MONGO_HOST') ?: 'localhost') . ':' . (getenv('MONGO_PORT') ?: '27017') . '/',
+            'defaultDatabaseName' => 'stock'
         ],
         
         'db' => $db,
@@ -85,6 +103,9 @@ $config = [
                 'calculo-media-desvio' => 'main/calculo-media-desvio',
                 'import' => 'import/import-form',
                 'import-data' => 'import/import-data',
+                'import-progress' => 'import/import-progress',
+                'import-stream' => 'import/import-stream',
+                'import-upload' => 'import/upload',
                 'annual-analysis' => 'main/annual-analysis',
                 'join-methods' => 'join/index',
                 'heuristic-m3' => 'heuristic-m3/index',

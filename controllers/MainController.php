@@ -574,6 +574,22 @@ class MainController extends Controller
             $consultas = count($next_days);
             Yii::debug("Conjunto de treinamento pronto");
 
+            if ($consultas === 0) {
+                Yii::error(
+                    "[predict-three-states-test] Division by zero evitada: \$consultas=0. " .
+                    "Nenhum dado encontrado para previsão. " .
+                    "ação=$stock inicio={$model->inicio} final={$model->final} " .
+                    "período=$model->periodo $model->metric " .
+                    "training_start=$start training_end=$final " .
+                    "training_size=" . count($cursor_by_price),
+                    'predict'
+                );
+                throw new \yii\web\BadRequestHttpException(
+                    "Nenhum dado encontrado para a ação \"$stock\" no período de previsão informado. " .
+                    "Verifique se os dados históricos foram importados para esse intervalo."
+                );
+            }
+
             while (1) {
 
                 if (count($next_days) == 0)
