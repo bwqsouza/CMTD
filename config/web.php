@@ -26,6 +26,7 @@ $config = [
      
     'components' => [
         'request' => [
+            'trustedHosts' => ['172.18.0.0/16'],
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'tmC8OAkIX2onr1DLBAF4IYtAL41Q_eEA',
         ],
