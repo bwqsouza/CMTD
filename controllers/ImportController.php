@@ -8,6 +8,7 @@ use Exception;
 use yii\base\Controller;
 use ZipArchive;
 use Yii;
+use app\models\ImportLog;
 
 class ImportController extends Controller
 {
@@ -26,7 +27,23 @@ class ImportController extends Controller
     public function actionImportForm()
     {
         $this->layout = 'navbar';
-        $importHistory = Yii::$app->session->get('import_history', []);
+
+        // Prefer DB-backed import history; fall back to session history if DB unavailable
+        $importHistory = [];
+        try {
+            $logs = ImportLog::find()->orderBy(['created_at' => SORT_DESC])->limit(20)->all();
+            foreach ($logs as $log) {
+                $importHistory[] = [
+                    'label' => $log->label ?? '',
+                    'count' => isset($log->count) ? (int)$log->count : 0,
+                    'at'    => $log->at ?? date('d/m/Y H:i'),
+                ];
+            }
+        } catch (\Exception $e) {
+            // fallback to session history if something goes wrong (e.g., DB not available)
+            $importHistory = Yii::$app->session->get('import_history', []);
+        }
+
         return $this->render('import-form', ['importHistory' => $importHistory]);
     }
 
@@ -117,6 +134,22 @@ class ImportController extends Controller
                 'at'    => date('d/m/Y H:i'),
             ]);
             Yii::$app->session->set('import_history', $history);
+
+            // Persist import summary to DB so it can be displayed on subsequent sessions
+            try {
+                $log = new ImportLog();
+                $log->label = $label;
+                $log->count = (int)$count;
+                $log->at = date('d/m/Y H:i');
+                $log->message = number_format($count, 0, ',', '.') . ' registros importados com sucesso.';
+                $log->jobId = $jobId;
+                $log->created_at = date('Y-m-d H:i:s');
+                if (!$log->save()) {
+                    Yii::warning('[IMPORT] Falha ao salvar import log: ' . json_encode($log->errors), 'import');
+                }
+            } catch (\Exception $e) {
+                Yii::warning('[IMPORT] Erro ao salvar import log: ' . $e->getMessage(), 'import');
+            }
 
             if ($progressFile) {
                 $this->writeProgress($progressFile, [

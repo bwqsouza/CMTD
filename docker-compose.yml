@@ -12,19 +12,8 @@ services:
     environment:
       MONGO_HOST: mongo
       MONGO_PORT: 27017
-    depends_on:
-      - mongo
 
-  mongo:
-    image: mongo:4.4
-    security_opt:
-      - apparmor:unconfined    
-    container_name: mongo_db
-    volumes:
-      - mongo_data:/data/db
-      - ./backup:/backup
-    ports:
-      - '27017:27017'
-
-volumes:
-  mongo_data:
+networks:
+  default:
+    external:
+      name: ic_markov_net
