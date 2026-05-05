@@ -1,6 +1,8 @@
 services:
   php:
     build: .
+    security_opt:
+      - apparmor:unconfined
     volumes:
       - ./:/app:delegated
     ports:
@@ -15,6 +17,8 @@ services:
 
   mongo:
     image: mongo:4.4
+    security_opt:
+      - apparmor:unconfined    
     container_name: mongo_db
     volumes:
       - mongo_data:/data/db
